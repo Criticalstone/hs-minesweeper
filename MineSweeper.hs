@@ -19,7 +19,23 @@ newGame :: GameField
 newGame = example
 
 flagCell :: GameField -> Pos -> GameField
-flagCell _ _ = (GameField [[]])
+flagCell (GameField rows) (y,x) = 
+    if (isOpened (rows !! y !! x)) 
+        then
+            (GameField rows)
+        else
+            GameField (rows !!= (y, rows !! y !!= (x, (Cell Flagged v))))
+
+    where
+        (Cell _ v) = rows !! y !! x
+
+(!!=) :: [a] -> (Int,a) -> [a]
+list !!= (i, v) = [ if index == i then v else value | 
+    (index, value) <- zip [0..] list]
+
+isOpened :: Cell -> Bool
+isOpened (Cell Opened _)    = True
+isOpened _                  = False
 
 clickCell :: GameField -> Pos -> GameField
 clickCell _ _ = (GameField [[]])
