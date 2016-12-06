@@ -3,7 +3,7 @@ module DataTypes where
 data State = Opened | Closed | Flagged
                 deriving (Eq, Show)
 
-data Value = Numeric Integer | Bomb
+data Value = Numeric Int | Bomb
                 deriving (Eq, Show)
 
 data Cell = Cell { state :: State, value :: Value }
