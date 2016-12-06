@@ -1,0 +1,15 @@
+module DataTypes where 
+
+data State = Opened | Closed | Flagged
+                deriving (Eq, Show)
+
+data Value = Numeric Integer | Bomb
+                deriving (Eq, Show)
+
+data Cell = Cell { state :: State, value :: Value }
+                deriving (Eq, Show)
+
+data GameField = GameField { rows :: [[Cell]] }
+                deriving (Eq, Show)
+
+type Pos = (Int, Int)
