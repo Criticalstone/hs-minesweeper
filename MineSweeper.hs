@@ -24,12 +24,12 @@ newGame = example
 
 flagCell :: GameField -> Pos -> GameField
 flagCell (GameField rows) (y,x) = 
-    if (isOpened (rows !! y !! x)) 
-        then
-            (GameField rows)
-        else
-            GameField (rows !!= (y, rows !! y !!= (x, (Cell Flagged v))))
-
+    if isOpened (rows !! y !! x) then
+        (GameField rows)
+    else if isFlagged (rows !! y !! x) then
+        GameField (rows !!= (y, rows !! y !!= (x, (Cell Closed v))))
+    else
+        GameField (rows !!= (y, rows !! y !!= (x, (Cell Flagged v))))
     where
         (Cell _ v) = rows !! y !! x
 
@@ -51,15 +51,13 @@ isEmptyCell _                    = False
 
 clickCell :: GameField -> Pos -> GameField
 clickCell (GameField rows) (y,x) =
-    if (isOpened (Cell state v) || isFlagged (Cell state v)) 
-        then 
-            (GameField rows)
-        else 
-            if (isEmptyCell (Cell state v))
-                then
-                    clickCell' clickedGf (calcOffsetPos clickedGf (y,x))
-                else
-                    clickedGf
+    if (isOpened (Cell state v) || isFlagged (Cell state v)) then 
+        (GameField rows)
+    else 
+        if (isEmptyCell (Cell state v)) then
+            clickCell' clickedGf (calcOffsetPos clickedGf (y,x))
+        else
+            clickedGf
     where 
         clickedGf       = (GameField (rows !!= (y, rows !! y !!= (x, (Cell Opened v)))))
         (Cell state v) = rows !! y !! x
