@@ -38,9 +38,6 @@ addNumerics gF []                           = gF
 addNumerics (GameField rows) (pos:postail)  = addNumerics gF postail
     where
         gF = addNumerics' (GameField rows) $ calcOffsetPos (GameField rows) pos
-{-
-    GameField [rows !!= (y, rows !! y !!= (x, (Cell state (v' +1)))) | (y,x) <- calcOffsetPos (GameField rows) pos, 
-        let (Cell state v) = rows !! y !! x, v /= Bomb, let (Numeric v') = v] -}
 
 addNumerics' :: GameField -> [Pos] -> GameField
 addNumerics' gF [] = gF
