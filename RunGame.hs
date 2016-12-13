@@ -6,7 +6,7 @@ import Data.List.Split
 import System.Random
 
 data Interface = Interface 
-    {   iNewGame    :: StdGen -> GameField 
+    {   iNewGame    :: Int -> Int -> Int -> StdGen -> GameField 
     ,   iFlagCell   :: GameField -> Pos -> GameField
     ,   iClickCell  :: GameField -> Pos -> GameField
     ,   iHasWon     :: GameField -> Bool
@@ -18,8 +18,17 @@ data Interface = Interface
 runGame :: Interface -> IO ()
 runGame i = do
   putStrLn "Welcome to Mine Sweeper."
+  putStrLn "Enter width of the game field"
+  x <- getLine 
+  putStrLn "Enter height of the game field"
+  y <- getLine
+  putStrLn "Enter number of bombs"
+  bombs <- getLine
+  let xint = read x :: Int
+  let yint = read y :: Int
+  let nbrBombs = read bombs :: Int
   g <- newStdGen
-  gameLoop i (iNewGame i g)
+  gameLoop i (iNewGame i xint yint nbrBombs g)
 
 -- | Play until the guest player is bust or chooses to stop.
 gameLoop :: Interface -> GameField -> IO ()

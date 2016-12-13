@@ -20,11 +20,11 @@ posOffset = [(-1,-1), (-1,0), (-1,1),
              (0, -1),         ( 0,1),
              (1, -1), ( 1,0), ( 1,1)]
 
-newGame :: StdGen -> GameField
-newGame gen = addNumerics bombField bombPos
+newGame :: Int -> Int -> Int -> StdGen -> GameField
+newGame sizeX sizeY noBombs gen = addNumerics bombField bombPos
     where
-        empty = emptyGameField 7 7
-        bombPos = nRandPos gen 5 [] (7,7)
+        empty = emptyGameField sizeY sizeX
+        bombPos = nRandPos gen noBombs [] (sizeY, sizeX)
         bombField = addBombs empty bombPos
 
 addBombs :: GameField -> [Pos] -> GameField
