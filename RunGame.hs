@@ -30,7 +30,6 @@ runGame i = do
   g <- newStdGen
   gameLoop i (iNewGame i xint yint nbrBombs g)
 
--- | Play until the guest player is bust or chooses to stop.
 gameLoop :: Interface -> GameField -> IO ()
 gameLoop i gameField = do
     printField gameField
@@ -72,7 +71,6 @@ parseInput s =
         valid = length inputs == 3
         pos = (read (inputs !! 1) :: Int, read (inputs !! 2) :: Int)
 
--- | Display the bank's final score and the winner.
 finish :: Interface -> Bool -> IO ()
 finish i didWin = do
     if didWin 
@@ -83,9 +81,9 @@ finish i didWin = do
 
 printField :: GameField -> IO ()
 printField (GameField rows) = do
-        putStrLn ( foldl (++) "   " [[intToDigit i] ++ " " | (i, _) <- zip [0..] (rows !! 0)])   
-        putStrLn ( foldl (++) "   " ["_ " | _ <- (rows !! 0)])   
-        putStrLn (unlines [ foldl (++) [intToDigit rowNum, ' ', '|'] [[cellToChar c] ++ " " | c <- row ] | (rowNum, row) <- zip [0..] rows] )
+        putStrLn ( foldl (++) "    " [digs i ++ " " | (i, _) <- zip [0..] (rows !! 0)])   
+        putStrLn ( foldl (++) "    " ["___" | _ <- (rows !! 0)])   
+        putStrLn (unlines [ foldl (++) ((digs rowNum) ++ [' ', '|', ' ']) [[cellToChar c] ++ "  " | c <- row ] | (rowNum, row) <- zip [0..] rows] )
 
 cellToChar :: Cell -> Char
 cellToChar (Cell Closed _)              = '.'
@@ -93,3 +91,15 @@ cellToChar (Cell Flagged _)             = 'P'
 cellToChar (Cell Opened (Numeric 0))    = ' ' 
 cellToChar (Cell _ (Numeric n))         = intToDigit n
 cellToChar _                            = '+'  
+
+digs :: Int -> [Char]
+digs 0 = ['0', '0']
+digs x = 
+    if x < 10 then 
+        ['0'] ++ digs' x
+    else
+        digs' x
+
+digs' :: Int -> [Char]
+digs' 0 = []
+digs' x = digs' (x `div` 10) ++ [intToDigit (x `mod` 10)]    
