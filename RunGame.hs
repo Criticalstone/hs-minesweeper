@@ -3,9 +3,10 @@ import DataTypes
 
 import Data.Char
 import Data.List.Split
+import System.Random
 
 data Interface = Interface 
-    {   iNewGame    :: GameField 
+    {   iNewGame    :: StdGen -> GameField 
     ,   iFlagCell   :: GameField -> Pos -> GameField
     ,   iClickCell  :: GameField -> Pos -> GameField
     ,   iHasWon     :: GameField -> Bool
@@ -17,7 +18,8 @@ data Interface = Interface
 runGame :: Interface -> IO ()
 runGame i = do
   putStrLn "Welcome to Mine Sweeper."
-  gameLoop i (iNewGame i)
+  g <- newStdGen
+  gameLoop i (iNewGame i g)
 
 -- | Play until the guest player is bust or chooses to stop.
 gameLoop :: Interface -> GameField -> IO ()
@@ -44,7 +46,6 @@ isValidInput _ (y, x) (GameField rows)  = not (y < 0 || y >= yMax || x < 0 || x 
     where 
         yMax = length rows
         xMax = length (rows !! 0)
-isValidInput _ _ _                      = True
 
 parseInput :: String -> (Action, Pos)
 parseInput s = 

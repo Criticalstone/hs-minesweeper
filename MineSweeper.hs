@@ -2,6 +2,7 @@ module MineSweeper where
 
 import DataTypes
 import RunGame
+import System.Random
 
 example = GameField [
     [ec, ec, ec, ec, ec], 
@@ -19,8 +20,19 @@ posOffset = [(-1,-1), (-1,0), (-1,1),
              (0, -1),         ( 0,1),
              (1, -1), ( 1,0), ( 1,1)]
 
-newGame :: GameField
-newGame = example
+newGame :: StdGen -> GameField
+newGame gen = example
+
+nRandPos :: StdGen -> Int -> [Pos] -> Pos -> [Pos]
+nRandPos _ 0 list _ = list 
+nRandPos gen n list (maxY, maxX) = 
+    if or [x == x' && y == y' | (y', x') <- list] then
+        nRandPos gen'' n list (maxY, maxX)
+    else 
+        nRandPos gen'' (n-1) (list ++ [(y,x)]) (maxY, maxX)
+    where
+        (y, gen') = randomR (0, maxY) gen
+        (x, gen'') = randomR (0, maxX) gen'
 
 flagCell :: GameField -> Pos -> GameField
 flagCell (GameField rows) (y,x) = 
