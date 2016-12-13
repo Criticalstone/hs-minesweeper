@@ -22,6 +22,39 @@ posOffset = [(-1,-1), (-1,0), (-1,1),
 
 newGame :: StdGen -> GameField
 newGame gen = example
+    where
+        empty = emptyGameField 7 7
+        bombPos = nRandPos gen 5 [] (7,7)
+        bombField = newGame' empty bombPos
+
+newGame' :: GameField -> [Pos] -> GameField
+newGame' gF [] = gF
+newGame' (GameField rows) ((y,x):xs) = newGame' gF' xs
+    where 
+        gF' = GameField (rows !!= (y, rows !! y !!= (x, (Cell Closed Bomb))))
+
+addNumerics :: GameField -> [Pos] -> GameField
+addNumerics (GameField rows) (pos:postail) = example
+{-}
+    GameField [rows !!= (y, rows !! y !!= (x, (Cell state (v' +1)))) | (y,x) <- calcOffsetPos (GameField rows) pos, 
+        let (Cell state v) = rows !! y !! x, v /= Bomb, let (Numeric v') = v] -}
+
+addNumerics' :: GameField -> [Pos] -> GameField
+addNumerics' gF [] = gF
+addNumerics' (GameField rows) ((y,x):postail) =
+    if val == Bomb then
+        addNumerics' (GameField rows) postail
+    else
+        addNumerics' gF' postail
+    where 
+        (Cell state val) = rows !! y !! x
+        (Numeric v) = val
+        gF' = GameField (rows !!= (y, rows !! y !!= (x, (Cell state (Numeric(v+1))))))
+
+emptyGameField :: Int -> Int -> GameField
+emptyGameField maxY maxX = GameField [ row | _ <- [0..maxY]]
+    where 
+        row = [Cell Closed (Numeric 0) | _ <- [0..maxX]]
 
 nRandPos :: StdGen -> Int -> [Pos] -> Pos -> [Pos]
 nRandPos _ 0 list _ = list 
