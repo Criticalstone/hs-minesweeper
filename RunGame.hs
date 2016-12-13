@@ -26,7 +26,7 @@ gameLoop i gameField = do
     if (iGameOver i gameField) || (iHasWon i gameField) then do
         finish i (iHasWon i gameField)
     else do
-        putStrLn "Click [C] or Flag [F] a position, [P y x] or [F y x]"
+        putStrLn "Click [C] or Flag [F] a position, [C y x] or [F y x]"
         inputLine <- getLine
         let (action, pos) = parseInput inputLine
         if (isValidInput action pos gameField) then do 
