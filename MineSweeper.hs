@@ -21,21 +21,24 @@ posOffset = [(-1,-1), (-1,0), (-1,1),
              (1, -1), ( 1,0), ( 1,1)]
 
 newGame :: StdGen -> GameField
-newGame gen = example
+newGame gen = addNumerics bombField bombPos
     where
         empty = emptyGameField 7 7
         bombPos = nRandPos gen 5 [] (7,7)
-        bombField = newGame' empty bombPos
+        bombField = addBombs empty bombPos
 
-newGame' :: GameField -> [Pos] -> GameField
-newGame' gF [] = gF
-newGame' (GameField rows) ((y,x):xs) = newGame' gF' xs
+addBombs :: GameField -> [Pos] -> GameField
+addBombs gF [] = gF
+addBombs (GameField rows) ((y,x):xs) = addBombs gF' xs
     where 
         gF' = GameField (rows !!= (y, rows !! y !!= (x, (Cell Closed Bomb))))
 
 addNumerics :: GameField -> [Pos] -> GameField
-addNumerics (GameField rows) (pos:postail) = example
-{-}
+addNumerics gF []                           = gF
+addNumerics (GameField rows) (pos:postail)  = addNumerics gF postail
+    where
+        gF = addNumerics' (GameField rows) $ calcOffsetPos (GameField rows) pos
+{-
     GameField [rows !!= (y, rows !! y !!= (x, (Cell state (v' +1)))) | (y,x) <- calcOffsetPos (GameField rows) pos, 
         let (Cell state v) = rows !! y !! x, v /= Bomb, let (Numeric v') = v] -}
 
