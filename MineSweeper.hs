@@ -15,6 +15,10 @@ example = GameField [
         e2 = Cell Closed (Numeric 2)
         bo = Cell Closed Bomb
 
+posOffset = [(-1,-1), (-1,0), (-1,1),
+             (0, -1),         ( 0,1),
+             (1, -1), ( 1,0), ( 1,1)]
+
 newGame :: GameField
 newGame = example
 
@@ -37,8 +41,37 @@ isOpened :: Cell -> Bool
 isOpened (Cell Opened _)    = True
 isOpened _                  = False
 
+isEmptyCell :: Cell -> Bool
+isEmptyCell (Cell _ (Numeric 0)) = True
+isEmptyCell _                    = False 
+
 clickCell :: GameField -> Pos -> GameField
-clickCell _ _ = (GameField [[]])
+clickCell (GameField rows) (y,x) =
+    if (isOpened (Cell opened v)) 
+        then 
+            (GameField rows)
+        else 
+            if (isEmptyCell (Cell opened v))
+                then
+                    clickCell' clickedGf (calcOffsetPos clickedGf (y,x))
+                else
+                    clickedGf
+    where 
+        clickedGf       = (GameField (rows !!= (y, rows !! y !!= (x, (Cell Opened v)))))
+        (Cell opened v) = rows !! y !! x
+
+clickCell' :: GameField -> [Pos] -> GameField
+clickCell' gf [pos]         = clickCell gf pos
+clickCell' gf (pos:posxs)   = clickCell' gf' posxs
+    where
+        gf' = clickCell gf pos
+
+calcOffsetPos :: GameField -> Pos -> [Pos]
+calcOffsetPos (GameField rows) (y,x) = 
+    [(y'',x'') | (y',x') <- posOffset, let y'' = y+y', let x'' = x+x', y'' >= 0, y'' < yMax, x'' >= 0, x'' < xMax]
+        where 
+            yMax = length rows
+            xMax = length $ rows !! 0 
 
 hasWon :: GameField -> Bool
 hasWon _ = False
