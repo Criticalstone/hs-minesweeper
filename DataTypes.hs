@@ -12,4 +12,7 @@ data Cell = Cell { state :: State, value :: Value }
 data GameField = GameField { rows :: [[Cell]] }
                 deriving (Eq, Show)
 
+data Action = Click | Flag | Invalid
+                deriving (Eq, Show)
+
 type Pos = (Int, Int)

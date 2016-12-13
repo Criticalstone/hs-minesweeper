@@ -90,3 +90,6 @@ implementation = Interface
     ,   iHasWon     = hasWon
     ,   iGameOver   = gameOver
     }
+
+main :: IO ()
+main = runGame implementation
