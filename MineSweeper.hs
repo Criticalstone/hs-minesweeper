@@ -41,24 +41,28 @@ isOpened :: Cell -> Bool
 isOpened (Cell Opened _)    = True
 isOpened _                  = False
 
+isFlagged :: Cell -> Bool
+isFlagged (Cell Flagged _)  = True
+isFlagged _                 = False
+
 isEmptyCell :: Cell -> Bool
 isEmptyCell (Cell _ (Numeric 0)) = True
 isEmptyCell _                    = False 
 
 clickCell :: GameField -> Pos -> GameField
 clickCell (GameField rows) (y,x) =
-    if (isOpened (Cell opened v)) 
+    if (isOpened (Cell state v) || isFlagged (Cell state v)) 
         then 
             (GameField rows)
         else 
-            if (isEmptyCell (Cell opened v))
+            if (isEmptyCell (Cell state v))
                 then
                     clickCell' clickedGf (calcOffsetPos clickedGf (y,x))
                 else
                     clickedGf
     where 
         clickedGf       = (GameField (rows !!= (y, rows !! y !!= (x, (Cell Opened v)))))
-        (Cell opened v) = rows !! y !! x
+        (Cell state v) = rows !! y !! x
 
 clickCell' :: GameField -> [Pos] -> GameField
 clickCell' gf [pos]         = clickCell gf pos
