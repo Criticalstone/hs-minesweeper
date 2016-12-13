@@ -72,8 +72,10 @@ finish i didWin = do
             putStrLn("YOU LOST")
 
 printField :: GameField -> IO ()
-printField (GameField rows) = 
-            putStrLn (unlines [ [ cellToChar c | c <- row ] | row <- rows] )
+printField (GameField rows) = do
+        putStrLn ( foldl (++) "   " [[intToDigit i] ++ " " | (i, _) <- zip [0..] (rows !! 0)])   
+        putStrLn ( foldl (++) "   " ["_ " | _ <- (rows !! 0)])   
+        putStrLn (unlines [ foldl (++) [intToDigit rowNum, ' ', '|'] [[cellToChar c] ++ " " | c <- row ] | (rowNum, row) <- zip [0..] rows] )
 
 cellToChar :: Cell -> Char
 cellToChar (Cell Closed _)              = '.'
