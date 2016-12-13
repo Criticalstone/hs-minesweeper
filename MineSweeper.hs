@@ -74,7 +74,10 @@ calcOffsetPos (GameField rows) (y,x) =
             xMax = length $ rows !! 0 
 
 hasWon :: GameField -> Bool
-hasWon _ = False
+hasWon (GameField rows) = 
+    and [(state == Closed && value == Bomb) || 
+            (state == Opened && value /= Bomb)  
+        | row <-rows, (Cell state value) <- row] 
 
 gameOver :: GameField -> Bool
 gameOver (GameField rows) = or [ state == Opened && value == Bomb 
