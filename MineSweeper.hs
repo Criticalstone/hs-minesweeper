@@ -75,7 +75,7 @@ calcOffsetPos (GameField rows) (y,x) =
 
 hasWon :: GameField -> Bool
 hasWon (GameField rows) = 
-    and [(state == Closed && value == Bomb) || 
+    and [((state == Closed || state == Flagged) && value == Bomb) || 
             (state == Opened && value /= Bomb)  
         | row <-rows, (Cell state value) <- row] 
 
