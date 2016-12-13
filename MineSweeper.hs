@@ -77,7 +77,8 @@ hasWon :: GameField -> Bool
 hasWon _ = False
 
 gameOver :: GameField -> Bool
-gameOver _ = False
+gameOver (GameField rows) = or [ state == Opened && value == Bomb 
+    | row <- rows, (Cell state value) <- row]
 
 implementation = Interface 
     {   iNewGame    = newGame
