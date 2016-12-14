@@ -99,6 +99,18 @@ flagCell (GameField rows) (y,x) =
     where
         (Cell _ v) = rows !! y !! x
 
+prop_flagCell :: GameField -> Pos -> Property
+prop_flagCell (GameField rows) (y,x) = validPos && not (isOpened (Cell s v)) ==>
+        if isFlagged (Cell s v) then
+            s' == Closed
+        else
+            s' == Flagged
+    where 
+        validPos = y >= 0 && y < length rows && x >= 0 && x < length (rows !! y)
+        (Cell s v) = rows !! y !! x
+        (GameField rows') = flagCell (GameField rows) (y,x)
+        (Cell s' v') = rows' !! y !! x
+
 -- Updates a list at the given index with the given value
 (!!=) :: [a] -> (Int,a) -> [a]
 list !!= (i, v) = [ if index == i then v else value | 
