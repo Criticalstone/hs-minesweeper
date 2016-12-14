@@ -117,6 +117,18 @@ prop_flagCell (GameField rows) (y,x) = not (isOpened (Cell s v)) ==>
 list !!= (i, v) = [ if index == i then v else value | 
     (index, value) <- zip [0..] list]
 
+-- Prop for !!=
+prop_update_list :: Eq a => [a] -> (Int, a) -> Bool
+prop_update_list list (pos, v) | l == 0 = True
+                                | otherwise = l == (length updated) 
+                                    && list !! pos' == v 
+                                    && and [updated !! p == list !! p | 
+                                        (p, val) <- zip[0..] list, p /= pos']
+    where 
+        l = length list
+        updated = list !!= (pos', v)
+        pos' = pos `mod` l
+
 isOpened :: Cell -> Bool
 isOpened (Cell Opened _)    = True
 isOpened _                  = False
