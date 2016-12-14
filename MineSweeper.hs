@@ -4,6 +4,7 @@ import DataTypes
 import RunGame
 import System.Random
 
+-- Just an example game field.
 example = GameField [
     [ec, ec, ec, ec, ec], 
     [e1, e1, e1, ec, ec],
@@ -20,19 +21,24 @@ posOffset = [(-1,-1), (-1,0), (-1,1),
              (0, -1),         ( 0,1),
              (1, -1), ( 1,0), ( 1,1)]
 
+-- Generates a new game field with the given parameters
 newGame :: Int -> Int -> Int -> StdGen -> GameField
 newGame sizeX sizeY noBombs gen = addNumerics bombField bombPos
     where
+        -- Start from an empty game field
         empty = emptyGameField sizeY sizeX
+        -- Then add bombs at random positions
         bombPos = nRandPos gen noBombs [] (sizeY, sizeX)
         bombField = addBombs empty bombPos
 
+-- Adds bombs to the given positions in the game field
 addBombs :: GameField -> [Pos] -> GameField
 addBombs gF [] = gF
 addBombs (GameField rows) ((y,x):xs) = addBombs gF' xs
     where 
         gF' = GameField (rows !!= (y, rows !! y !!= (x, (Cell Closed Bomb))))
 
+-- Updates the cells around all bombs to show correct number
 addNumerics :: GameField -> [Pos] -> GameField
 addNumerics gF []                           = gF
 addNumerics (GameField rows) (pos:postail)  = addNumerics gF postail
@@ -51,11 +57,13 @@ addNumerics' (GameField rows) ((y,x):postail) =
         (Numeric v) = val
         gF' = GameField (rows !!= (y, rows !! y !!= (x, (Cell state (Numeric(v+1))))))
 
+-- Creates an empty game field of given dimensions
 emptyGameField :: Int -> Int -> GameField
 emptyGameField maxY maxX = GameField [ row | _ <- [0..maxY]]
     where 
         row = [Cell Closed (Numeric 0) | _ <- [0..maxX]]
 
+-- Generates n random positions in the game field
 nRandPos :: StdGen -> Int -> [Pos] -> Pos -> [Pos]
 nRandPos _ 0 list _ = list 
 nRandPos gen n list (maxY, maxX) = 
@@ -67,6 +75,7 @@ nRandPos gen n list (maxY, maxX) =
         (y, gen') = randomR (0, maxY) gen
         (x, gen'') = randomR (0, maxX) gen'
 
+-- Flags a cell with the given position
 flagCell :: GameField -> Pos -> GameField
 flagCell (GameField rows) (y,x) = 
     if isOpened (rows !! y !! x) then
@@ -78,6 +87,7 @@ flagCell (GameField rows) (y,x) =
     where
         (Cell _ v) = rows !! y !! x
 
+-- Updates a list at the given index with the given value
 (!!=) :: [a] -> (Int,a) -> [a]
 list !!= (i, v) = [ if index == i then v else value | 
     (index, value) <- zip [0..] list]
@@ -94,12 +104,14 @@ isEmptyCell :: Cell -> Bool
 isEmptyCell (Cell _ (Numeric 0)) = True
 isEmptyCell _                    = False 
 
+-- Opens a cell at a given position if it isn't flagged.
 clickCell :: GameField -> Pos -> GameField
 clickCell (GameField rows) (y,x) =
     if (isOpened (Cell state v) || isFlagged (Cell state v)) then 
         (GameField rows)
     else 
         if (isEmptyCell (Cell state v)) then
+            -- Recursively open neigboring cells if this cell is completely empty
             clickCell' clickedGf (calcOffsetPos clickedGf (y,x))
         else
             clickedGf
@@ -113,6 +125,7 @@ clickCell' gf (pos:posxs)   = clickCell' gf' posxs
     where
         gf' = clickCell gf pos
 
+-- Calculates all surrounding positions of a given coordinate
 calcOffsetPos :: GameField -> Pos -> [Pos]
 calcOffsetPos (GameField rows) (y,x) = 
     [(y'',x'') | (y',x') <- posOffset, let y'' = y+y', let x'' = x+x', y'' >= 0, y'' < yMax, x'' >= 0, x'' < xMax]
@@ -120,12 +133,14 @@ calcOffsetPos (GameField rows) (y,x) =
             yMax = length rows
             xMax = length $ rows !! 0 
 
+-- Checks if all cells but those containing bombs are open
 hasWon :: GameField -> Bool
 hasWon (GameField rows) = 
     and [((state == Closed || state == Flagged) && value == Bomb) || 
             (state == Opened && value /= Bomb)  
         | row <-rows, (Cell state value) <- row] 
 
+-- Checks if a bomb has been opened
 gameOver :: GameField -> Bool
 gameOver (GameField rows) = or [ state == Opened && value == Bomb 
     | row <- rows, (Cell state value) <- row]
