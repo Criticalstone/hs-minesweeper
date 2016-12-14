@@ -3,6 +3,8 @@ module MineSweeper where
 import DataTypes
 import RunGame
 import System.Random
+import Test.QuickCheck
+import Test.QuickCheck.Gen
 
 -- Just an example game field.
 example = GameField [
@@ -20,6 +22,16 @@ example = GameField [
 posOffset = [(-1,-1), (-1,0), (-1,1),
              (0, -1),         ( 0,1),
              (1, -1), ( 1,0), ( 1,1)]
+
+-- Instance for an arbitrary game field
+instance Arbitrary GameField where 
+    arbitrary = do
+        maxX <- elements [5..10]
+        maxY <- elements [5..10]
+        bombs <- elements [1..10]
+        seed <- elements [1..999999]
+        let gen = mkStdGen seed
+        return (newGame maxX maxY bombs gen)
 
 -- Generates a new game field with the given parameters
 newGame :: Int -> Int -> Int -> StdGen -> GameField
@@ -124,6 +136,16 @@ clickCell' gf [pos]         = clickCell gf pos
 clickCell' gf (pos:posxs)   = clickCell' gf' posxs
     where
         gf' = clickCell gf pos
+
+prop_clickCell :: GameField -> Pos -> Property
+prop_clickCell (GameField rows) (y,x) = 
+    validPos && not (isOpened (Cell s v)) && not (isEmptyCell (Cell s v)) ==>
+        s' == Opened && v' == v
+    where 
+        validPos = y >= 0 && y < length rows && x >= 0 && x < length (rows !! y)
+        (Cell s v) = rows !! y !! x
+        (GameField rows') = clickCell (GameField rows) (y,x)
+        (Cell s' v') = rows' !! y !! x
 
 -- Calculates all surrounding positions of a given coordinate
 calcOffsetPos :: GameField -> Pos -> [Pos]
